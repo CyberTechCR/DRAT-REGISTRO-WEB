@@ -16,6 +16,7 @@ import { DepartmentsPage } from './pages/DepartmentsPage';
 import { InstitutionalTripsPage } from './pages/InstitutionalTripsPage';
 import { ApprovalsPage } from './pages/ApprovalsPage';
 import { VisitorBadgesPage } from './pages/VisitorBadgesPage';
+import { PermanentProvidersPage } from './pages/PermanentProvidersPage';
 
 const pageContent = {
   '/administracion': ['CATÁLOGOS DEL SISTEMA', 'Administración', 'Gestión de usuarios, funcionarios, vehículos y configuraciones generales.'],
@@ -37,6 +38,7 @@ export function App() {
         <Route path="/administracion/vehiculos-particulares" element={<ProtectedRoute allowedRoles={['ADMINISTRADOR']}><PrivateVehiclesPage /></ProtectedRoute>} />
         <Route path="/administracion/tags-nfc" element={<ProtectedRoute allowedRoles={['ADMINISTRADOR']}><NfcTagsPage /></ProtectedRoute>} />
         <Route path="/administracion/gafetes-visitantes" element={<ProtectedRoute allowedRoles={['ADMINISTRADOR']}><VisitorBadgesPage /></ProtectedRoute>} />
+        <Route path="/administracion/proveedores" element={<ProtectedRoute allowedRoles={['ADMINISTRADOR']}><PermanentProvidersPage /></ProtectedRoute>} />
         <Route path="/consultas" element={<ProtectedRoute allowedRoles={['ADMINISTRADOR']}><InstitutionalTripsPage /></ProtectedRoute>} />
         <Route path="/aprobaciones" element={<ProtectedRoute allowedRoles={['ADMINISTRADOR']}><ApprovalsPage /></ProtectedRoute>} />
         {modules.slice(2).filter((module) => !['/consultas', '/aprobaciones'].includes(module.path)).map((module) => {

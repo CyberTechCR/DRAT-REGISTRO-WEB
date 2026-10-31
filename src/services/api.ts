@@ -82,6 +82,7 @@ export interface NfcTagRecord {
   condition: 'OPERATIVO' | 'DANADO' | 'PERDIDO' | 'INACTIVO';
   operationalStatus: 'DISPONIBLE' | 'ASIGNADO' | 'DANADO' | 'PERDIDO' | 'INACTIVO';
   visitorAssignment: { name: string } | null;
+  providerAssignment: { name: string } | null;
   employee: Pick<EmployeeRecord, 'id' | 'identification' | 'name' | 'department' | 'position' | 'active'> | null;
   createdAt: string;
   updatedAt: string;
@@ -278,6 +279,11 @@ export async function getNfcTagHistory(token: string, id: string) {
   const response = await apiRequest<{ data: { id: string; event: string; detail: string; occurredAt: string; changedBy: string }[] }>(`/api/v1/catalogs/nfc-tags/${id}/history`, {}, token);
   return response.data;
 }
+export type PermanentProviderRecord={id:string;identification:string;name:string;company:string;phone:string;active:boolean;vehicles:{id:string;plate:string;active:boolean}[];tags:{id:string;code:string;active:boolean;condition:string}[]};
+export type PermanentProviderInput={identification:string;name:string;company:string;phone:string;active:boolean;vehiclePlates:string[];nfcTagIds:string[]};
+export async function getPermanentProviders(token:string){return (await apiRequest<{data:PermanentProviderRecord[]}>('/api/v1/catalogs/permanent-providers',{},token)).data;}
+export async function createPermanentProvider(token:string,input:PermanentProviderInput){return (await apiRequest<{data:PermanentProviderRecord}>('/api/v1/catalogs/permanent-providers',{method:'POST',body:JSON.stringify(input)},token)).data;}
+export async function updatePermanentProvider(token:string,id:string,input:PermanentProviderInput){return (await apiRequest<{data:PermanentProviderRecord}>(`/api/v1/catalogs/permanent-providers/${id}`,{method:'PUT',body:JSON.stringify(input)},token)).data;}
 
 export async function deleteNfcTag(token: string, id: string) {
   await apiRequest<void>(`/api/v1/catalogs/nfc-tags/${id}`, { method: 'DELETE' }, token);
