@@ -79,6 +79,9 @@ export interface NfcTagRecord {
   code: string;
   employeeId: string | null;
   active: boolean;
+  condition: 'OPERATIVO' | 'DANADO' | 'PERDIDO' | 'INACTIVO';
+  operationalStatus: 'DISPONIBLE' | 'ASIGNADO' | 'DANADO' | 'PERDIDO' | 'INACTIVO';
+  visitorAssignment: { name: string } | null;
   employee: Pick<EmployeeRecord, 'id' | 'identification' | 'name' | 'department' | 'position' | 'active'> | null;
   createdAt: string;
   updatedAt: string;
@@ -266,8 +269,13 @@ export async function createNfcTag(token: string, input: { code: string; employe
   return response.data;
 }
 
-export async function updateNfcTag(token: string, id: string, input: { employeeId?: string | null; active?: boolean }) {
+export async function updateNfcTag(token: string, id: string, input: { employeeId?: string | null; active?: boolean; condition?: 'OPERATIVO' | 'DANADO' | 'PERDIDO' | 'INACTIVO' }) {
   const response = await apiRequest<{ data: NfcTagRecord }>(`/api/v1/catalogs/nfc-tags/${id}`, { method: 'PATCH', body: JSON.stringify(input) }, token);
+  return response.data;
+}
+
+export async function getNfcTagHistory(token: string, id: string) {
+  const response = await apiRequest<{ data: { id: string; event: string; detail: string; occurredAt: string; changedBy: string }[] }>(`/api/v1/catalogs/nfc-tags/${id}/history`, {}, token);
   return response.data;
 }
 
