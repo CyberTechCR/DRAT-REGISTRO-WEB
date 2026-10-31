@@ -15,6 +15,7 @@ import { NfcTagsPage } from './pages/NfcTagsPage';
 import { DepartmentsPage } from './pages/DepartmentsPage';
 import { InstitutionalTripsPage } from './pages/InstitutionalTripsPage';
 import { ApprovalsPage } from './pages/ApprovalsPage';
+import { VisitorBadgesPage } from './pages/VisitorBadgesPage';
 
 const pageContent = {
   '/administracion': ['CATÁLOGOS DEL SISTEMA', 'Administración', 'Gestión de usuarios, funcionarios, vehículos y configuraciones generales.'],
@@ -35,6 +36,7 @@ export function App() {
         <Route path="/administracion/vehiculos-institucionales" element={<ProtectedRoute allowedRoles={['ADMINISTRADOR']}><InstitutionalVehiclesPage /></ProtectedRoute>} />
         <Route path="/administracion/vehiculos-particulares" element={<ProtectedRoute allowedRoles={['ADMINISTRADOR']}><PrivateVehiclesPage /></ProtectedRoute>} />
         <Route path="/administracion/tags-nfc" element={<ProtectedRoute allowedRoles={['ADMINISTRADOR']}><NfcTagsPage /></ProtectedRoute>} />
+        <Route path="/administracion/gafetes-visitantes" element={<ProtectedRoute allowedRoles={['ADMINISTRADOR']}><VisitorBadgesPage /></ProtectedRoute>} />
         <Route path="/consultas" element={<ProtectedRoute allowedRoles={['ADMINISTRADOR']}><InstitutionalTripsPage /></ProtectedRoute>} />
         <Route path="/aprobaciones" element={<ProtectedRoute allowedRoles={['ADMINISTRADOR']}><ApprovalsPage /></ProtectedRoute>} />
         {modules.slice(2).filter((module) => !['/consultas', '/aprobaciones'].includes(module.path)).map((module) => {

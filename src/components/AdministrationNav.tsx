@@ -9,6 +9,7 @@ export function AdministrationNav() {
       <NavLink to="/administracion/vehiculos-institucionales">Vehículos institucionales</NavLink>
       <NavLink to="/administracion/vehiculos-particulares">Vehículos particulares</NavLink>
       <NavLink to="/administracion/tags-nfc">TAG NFC</NavLink>
+      <NavLink to="/administracion/gafetes-visitantes">Gafetes de visitantes</NavLink>
     </nav>
   );
 }
