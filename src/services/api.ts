@@ -307,3 +307,6 @@ export async function createMovementContingency(token: string, input: { entityTy
   const response = await apiRequest<{ data: { createdMovementId: string } }>('/api/v1/movements/contingencies', { method: 'POST', body: JSON.stringify(input) }, token);
   return response.data;
 }
+export type VisitorBadgeContingency={id:string;identification:string;name:string;reason:string;observation:string;entryAt:string;operatorName:string};
+export async function getPendingVisitorBadgeContingencies(token:string){return (await apiRequest<{data:VisitorBadgeContingency[]}>('/api/v1/movements/visitors/badge-contingencies/pending',{},token)).data;}
+export async function resolveVisitorBadgeContingency(token:string,id:string,note:string){return (await apiRequest<{data:{id:string}}>(`/api/v1/movements/visitors/badge-contingencies/${id}/resolve`,{method:'POST',body:JSON.stringify({note})},token)).data;}
