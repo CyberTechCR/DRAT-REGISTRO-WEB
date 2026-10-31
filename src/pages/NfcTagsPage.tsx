@@ -2,15 +2,16 @@ import { useEffect, useState, type FormEvent } from 'react';
 
 import { useAuth } from '../auth/AuthContext';
 import { AdministrationNav } from '../components/AdministrationNav';
-import { createNfcTag, deleteNfcTag, getEmployees, getNfcTags, updateNfcTag, type EmployeeRecord, type NfcTagRecord } from '../services/api';
+import { createNfcTag, deleteNfcTag, getEmployees, getNfcTags, getPermanentProviders, updateNfcTag, updatePermanentProvider, type EmployeeRecord, type NfcTagRecord, type PermanentProviderRecord } from '../services/api';
 
-const emptyForm = { code: '', employeeId: '' };
+const emptyForm = { code: '', employeeId: '', providerId: '', target: 'FUNCIONARIO' as 'FUNCIONARIO' | 'PROVEEDOR' };
 
 export function NfcTagsPage() {
   const { session } = useAuth();
   const token = session?.token ?? '';
   const [tags, setTags] = useState<NfcTagRecord[]>([]);
   const [employees, setEmployees] = useState<EmployeeRecord[]>([]);
+  const [providers, setProviders] = useState<PermanentProviderRecord[]>([]);
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState('');
@@ -20,12 +21,13 @@ export function NfcTagsPage() {
   async function reload() { setTags(await getNfcTags(token)); }
 
   useEffect(() => {
-    Promise.all([getNfcTags(token), getEmployees(token)])
-      .then(([tagData, employeeData]) => { setTags(tagData); setEmployees(employeeData); })
+    Promise.all([getNfcTags(token), getEmployees(token), getPermanentProviders(token)])
+      .then(([tagData, employeeData, providerData]) => { setTags(tagData); setEmployees(employeeData); setProviders(providerData); })
       .catch((reason: unknown) => setError(reason instanceof Error ? reason.message : 'No fue posible cargar los TAG NFC'));
   }, [token]);
 
   const availableEmployees = employees.filter((employee) => employee.active && (!tags.some((tag) => tag.employeeId === employee.id) || employee.id === form.employeeId));
+  const availableProviders = providers.filter((provider) => provider.active);
   const normalizedSearch = search.trim().toLocaleLowerCase('es');
   const filteredTags = tags.filter((tag) => [tag.code, tag.employee?.name, tag.employee?.identification]
     .some((value) => value?.toLocaleLowerCase('es').includes(normalizedSearch)));
@@ -33,8 +35,23 @@ export function NfcTagsPage() {
   async function submit(event: FormEvent) {
     event.preventDefault(); setError(''); setMessage('');
     try {
-      if (editingId) { await updateNfcTag(token, editingId, { employeeId: form.employeeId }); setMessage('Asociación actualizada.'); }
-      else { await createNfcTag(token, form); setMessage('TAG NFC asociado correctamente.'); }
+      const currentTag = editingId ? tags.find((item) => item.id === editingId) : undefined;
+      if (currentTag?.providerAssignment && (form.target === 'FUNCIONARIO' || currentTag.providerAssignment.id !== form.providerId)) {
+        const previous = providers.find((item) => item.id === currentTag.providerAssignment?.id);
+        if (previous) await updatePermanentProvider(token, previous.id, { identification: previous.identification, name: previous.name, company: previous.company, phone: previous.phone, active: previous.active, vehiclePlates: previous.vehicles.map((item) => item.plate), nfcTagIds: previous.tags.filter((item) => item.id !== currentTag.id).map((item) => item.id) });
+      }
+      if (currentTag?.employeeId && form.target === 'PROVEEDOR') await updateNfcTag(token, currentTag.id, { employeeId: null });
+      if (form.target === 'FUNCIONARIO') {
+        if (editingId) await updateNfcTag(token, editingId, { employeeId: form.employeeId });
+        else await createNfcTag(token, { code: form.code, employeeId: form.employeeId, purpose: 'GENERAL' });
+      } else {
+        const provider = providers.find((item) => item.id === form.providerId);
+        if (!provider) throw new Error('Seleccione un proveedor activo');
+        const tag = editingId ? tags.find((item) => item.id === editingId) : await createNfcTag(token, { code: form.code, employeeId: null, purpose: 'GENERAL' });
+        if (!tag) throw new Error('TAG NFC no encontrado');
+        await updatePermanentProvider(token, provider.id, { identification: provider.identification, name: provider.name, company: provider.company, phone: provider.phone, active: provider.active, vehiclePlates: provider.vehicles.map((item) => item.plate), nfcTagIds: [...new Set([...provider.tags.map((item) => item.id), tag.id])] });
+      }
+      setMessage('TAG NFC asociado correctamente.');
       setForm(emptyForm); setEditingId(null); await reload();
     } catch (reason) { setError(reason instanceof Error ? reason.message : 'No fue posible guardar el TAG'); }
   }
@@ -49,6 +66,12 @@ export function NfcTagsPage() {
     setError(''); setMessage('');
     if (!window.confirm(`¿Desea liberar el TAG ${tag.code} de ${tag.employee?.name}?`)) return;
     try { await updateNfcTag(token, tag.id, { employeeId: null }); setMessage('TAG liberado. Ahora puede reasignarse o eliminarse si no tiene historial.'); await reload(); }
+    catch (reason) { setError(reason instanceof Error ? reason.message : 'No fue posible liberar el TAG'); }
+  }
+  async function unassignProvider(tag: NfcTagRecord) {
+    const provider = providers.find((item) => item.id === tag.providerAssignment?.id); if (!provider) return;
+    setError(''); setMessage('');
+    try { await updatePermanentProvider(token, provider.id, { identification: provider.identification, name: provider.name, company: provider.company, phone: provider.phone, active: provider.active, vehiclePlates: provider.vehicles.map((item) => item.plate), nfcTagIds: provider.tags.filter((item) => item.id !== tag.id).map((item) => item.id) }); setMessage('TAG liberado del proveedor.'); await reload(); }
     catch (reason) { setError(reason instanceof Error ? reason.message : 'No fue posible liberar el TAG'); }
   }
 
@@ -68,7 +91,8 @@ export function NfcTagsPage() {
         <h2>{editingId ? 'Cambiar funcionario asociado' : 'Asociar TAG NFC'}</h2>
         <label>Código del TAG<input value={form.code} onChange={(event) => setForm({ ...form, code: event.target.value })} disabled={editingId !== null} minLength={4} maxLength={80} required /></label>
         {editingId && <small>El código es único y no puede modificarse.</small>}
-        <label>Funcionario<select value={form.employeeId} onChange={(event) => setForm({ ...form, employeeId: event.target.value })} required><option value="">Seleccione un funcionario activo</option>{availableEmployees.map((employee) => <option value={employee.id} key={employee.id}>{employee.name} · {employee.identification}</option>)}</select></label>
+        <label>Asignar a<select value={form.target} onChange={(event) => setForm({ ...form, target: event.target.value as typeof form.target, employeeId: '', providerId: '' })}><option value="FUNCIONARIO">Funcionario</option><option value="PROVEEDOR">Proveedor permanente</option></select></label>
+        {form.target === 'FUNCIONARIO' ? <label>Funcionario<select value={form.employeeId} onChange={(event) => setForm({ ...form, employeeId: event.target.value })} required><option value="">Seleccione un funcionario activo</option>{availableEmployees.map((employee) => <option value={employee.id} key={employee.id}>{employee.name} · {employee.identification}</option>)}</select></label> : <label>Proveedor<select value={form.providerId} onChange={(event) => setForm({ ...form, providerId: event.target.value })} required><option value="">Seleccione un proveedor activo</option>{availableProviders.map((provider) => <option value={provider.id} key={provider.id}>{provider.name} · {provider.company}</option>)}</select></label>}
         <button className="primary-action" type="submit">{editingId ? 'Guardar asociación' : 'Asociar TAG'}</button>
         {editingId && <button className="secondary-action" type="button" onClick={() => { setEditingId(null); setForm(emptyForm); }}>Cancelar</button>}
         {message && <p className="form-success">{message}</p>}{error && <p className="form-error" role="alert">{error}</p>}
@@ -79,9 +103,10 @@ export function NfcTagsPage() {
           {search && <button type="button" onClick={() => setSearch('')}>Limpiar</button>}
         </form>
         {tags.length === 0 ? <p className="empty-list">No hay TAG NFC registrados.</p> : filteredTags.length === 0 ? <p className="empty-list">No hay TAG NFC que coincidan con la búsqueda.</p> : filteredTags.map((tag) => <article className="employee-row" key={tag.id}>
-          <div><strong>{tag.code}</strong><small>Identificador NFC</small></div><div><strong>{tag.employee?.name ?? 'Sin asignar'}</strong><small>{tag.employee?.identification ?? 'Disponible para asignación'}</small></div>
-          <button className="secondary-action compact" type="button" onClick={() => { setEditingId(tag.id); setForm({ code: tag.code, employeeId: tag.employeeId ?? '' }); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>{tag.employeeId ? 'Reasignar' : 'Asignar'}</button>
+          <div><strong>{tag.code}</strong><small>Identificador NFC</small></div><div><strong>{tag.employee?.name ?? tag.providerAssignment?.name ?? 'Sin asignar'}</strong><small>{tag.employee?.identification ?? (tag.providerAssignment ? 'Proveedor permanente' : 'Disponible para asignación')}</small></div>
+          {tag.purpose === 'GENERAL' && <button className="secondary-action compact" type="button" onClick={() => { setEditingId(tag.id); setForm({ code: tag.code, employeeId: tag.employeeId ?? '', providerId: tag.providerAssignment?.id ?? '', target: tag.providerAssignment ? 'PROVEEDOR' : 'FUNCIONARIO' }); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>{tag.employeeId || tag.providerAssignment ? 'Reasignar' : 'Asignar'}</button>}
           {tag.employeeId && <button className="secondary-action compact" type="button" onClick={() => void unassign(tag)}>Liberar</button>}
+          {tag.providerAssignment && <button className="secondary-action compact" type="button" onClick={() => void unassignProvider(tag)}>Liberar</button>}
           <button className={tag.active ? 'status-button active' : 'status-button'} type="button" disabled={!tag.employeeId} title={!tag.employeeId ? 'Asigne un funcionario antes de activar el TAG' : undefined} onClick={() => void toggle(tag)}>{tag.active ? 'Activo' : 'Inactivo'}</button>
           <button className="secondary-action compact" type="button" disabled={Boolean(tag.employeeId)} title={tag.employeeId ? 'Primero debe liberar el TAG' : 'Eliminar TAG'} onClick={() => void remove(tag)}>Eliminar</button>
         </article>)}

@@ -83,7 +83,7 @@ export interface NfcTagRecord {
   purpose: 'GENERAL' | 'VISITANTE';
   operationalStatus: 'DISPONIBLE' | 'ASIGNADO' | 'DANADO' | 'PERDIDO' | 'INACTIVO';
   visitorAssignment: { name: string } | null;
-  providerAssignment: { name: string } | null;
+  providerAssignment: { id: string; name: string } | null;
   employee: Pick<EmployeeRecord, 'id' | 'identification' | 'name' | 'department' | 'position' | 'active'> | null;
   createdAt: string;
   updatedAt: string;
