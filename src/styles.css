@@ -105,6 +105,23 @@ h2 { margin-bottom: 10px; color: #163243; font-size: 19px; }
 .contingency-form { max-width: 720px; margin-top: 26px; }.contingency-form textarea { min-height: 100px; resize: vertical; }
 .danger-action { padding: 10px 14px; border: 1px solid #eccaca; border-radius: 9px; color: #9a2e2e; background: #fff; cursor: pointer; font-weight: 750; }
 .danger-action.compact { padding: 7px 10px; font-size: 11px; }
+.approvals-page { display: grid; gap: 24px; }
+.approvals-page > h1, .approvals-page > p { margin-top: 0; margin-bottom: 0; }
+.approval-section { display: grid; gap: 22px; }
+.approval-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; padding-bottom: 18px; border-bottom: 1px solid #e5ecef; }
+.approval-heading h2 { margin: 4px 0 10px; }
+.approval-heading p:not(.eyebrow) { max-width: 680px; margin: 0; color: #647985; line-height: 1.55; }
+.approval-note { display: grid; gap: 8px; color: #244554; font-size: 13px; font-weight: 800; }
+.approval-note textarea { width: 100%; min-height: 92px; padding: 13px 14px; resize: vertical; border: 1px solid #b8cbd3; border-radius: 10px; color: #163243; background: #fff; font: inherit; font-weight: 500; }
+.approval-note textarea:focus { border-color: #015397; outline: none; box-shadow: 0 0 0 3px rgba(1,83,151,.1); }
+.approval-instruction { margin: -6px 0 0; color: #365361; font-size: 13px; font-weight: 750; }
+.approval-list { display: grid; gap: 14px; }
+.approval-card { display: grid; grid-template-columns: minmax(180px, .9fr) minmax(240px, 1.4fr) minmax(165px, auto); align-items: center; gap: 18px; padding: 18px; border: 1px solid #dce6ea; border-radius: 12px; background: #f9fbfc; }
+.approval-card > div { min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.approval-card small { color: #647985; line-height: 1.45; white-space: normal; }
+.approval-button { width: 100%; min-height: 44px; }
+.approval-button:disabled { cursor: not-allowed; opacity: .45; }
+.asset-missing-list { gap: 8px !important; }
 
 @media (max-width: 1120px) {
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
@@ -128,6 +145,7 @@ h2 { margin-bottom: 10px; color: #163243; font-size: 19px; }
   .logout-button { display: none; }
   .dashboard-grid { grid-template-columns: 1fr; }
   .users-layout { grid-template-columns: 1fr; }
+  .approval-card { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 620px) {
@@ -162,6 +180,9 @@ h2 { margin-bottom: 10px; color: #163243; font-size: 19px; }
   .login-page { padding: 16px; }
   .login-card { padding: 30px 24px; }
   .login-logo { width: 130px; }
+  .approval-heading { flex-direction: column; gap: 14px; }
+  .approval-section { gap: 18px; }
+  .approval-card { padding: 15px; }
 }
 
 @media (max-width: 420px) {
