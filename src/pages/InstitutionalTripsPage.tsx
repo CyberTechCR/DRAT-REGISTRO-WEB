@@ -5,6 +5,17 @@ import { getMovementHistory, type MovementHistoryRecord } from '../services/api'
 const formatDate = (value: string) => new Intl.DateTimeFormat('es-CR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(value));
 const labels: Record<MovementHistoryRecord['type'], string> = { FUNCIONARIO: 'Funcionario', VEHICULO_PARTICULAR: 'Vehículo particular', VEHICULO_INSTITUCIONAL: 'Vehículo institucional', VISITANTE: 'Visitante', PROVEEDOR: 'Proveedor' };
 const detailLabel = (key: string) => key.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase());
+function detailValue(value: unknown) {
+  if (typeof value === 'boolean') return value ? 'Sí' : 'No';
+  if (Array.isArray(value)) return value.length === 0 ? 'Ninguno' : value.map((item) => {
+    if (!item || typeof item !== 'object') return String(item);
+    const asset = item as Record<string, unknown>;
+    const identifier = asset.identificador ? ` · ID: ${String(asset.identificador)}` : '';
+    const observation = asset.observacion ? ` · ${String(asset.observacion)}` : '';
+    return `${String(asset.cantidad ?? 1)} × ${String(asset.descripcion ?? 'Activo')}${identifier}${observation}`;
+  }).join('; ');
+  return String(value);
+}
 
 export function InstitutionalTripsPage() {
   const { session } = useAuth();
@@ -32,7 +43,7 @@ export function InstitutionalTripsPage() {
     <div className="panel trips-panel"><div className="panel-heading"><div><p className="eyebrow">RESULTADOS</p><h2>Movimientos registrados</h2></div><span className="demo-badge">{records.length} TOTAL</span></div>
       {error && <p className="form-error" role="alert">{error}</p>}{loading ? <p>Cargando historial…</p> : records.length === 0 ? <p className="empty-list">No existen movimientos con los filtros seleccionados.</p> : records.map((record) => <article className="history-record" key={`${record.type}-${record.id}`}>
         <div className="history-summary"><div><strong>{record.subject}</strong><small>{record.identifier}</small></div><div><strong>{labels[record.type]}</strong><small>{record.source.replaceAll('_', ' ')}</small></div><div><strong>{formatDate(record.occurredAt)}</strong><small>Operador: {record.operatorName}</small></div><span className={record.state === 'INGRESO' ? 'status-button active' : 'type-badge'}>{record.state}</span><button className="secondary-action compact" type="button" onClick={() => setOpenId(openId === `${record.type}-${record.id}` ? null : `${record.type}-${record.id}`)}>{openId === `${record.type}-${record.id}` ? 'Ocultar' : 'Ver detalle'}</button></div>
-        {openId === `${record.type}-${record.id}` && <div className="history-detail"><p><strong>Operador responsable:</strong> {record.operatorName} · {record.operatorEmail}</p><p><strong>Fecha y hora:</strong> {formatDate(record.occurredAt)}</p>{Object.entries(record.details).filter(([, value]) => value !== null && value !== '').map(([key, value]) => <p key={key}><strong>{detailLabel(key)}:</strong> {typeof value === 'boolean' ? value ? 'Sí' : 'No' : String(value)}</p>)}</div>}
+        {openId === `${record.type}-${record.id}` && <div className="history-detail"><p><strong>Operador responsable:</strong> {record.operatorName} · {record.operatorEmail}</p><p><strong>Fecha y hora:</strong> {formatDate(record.occurredAt)}</p>{Object.entries(record.details).filter(([, value]) => value !== null && value !== '').map(([key, value]) => <p key={key}><strong>{detailLabel(key)}:</strong> {detailValue(value)}</p>)}</div>}
       </article>)}
     </div>
   </section>;
