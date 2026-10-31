@@ -12,7 +12,9 @@ function detailValue(value: unknown) {
     const asset = item as Record<string, unknown>;
     const identifier = asset.identificador ? ` · ID: ${String(asset.identificador)}` : '';
     const observation = asset.observacion ? ` · ${String(asset.observacion)}` : '';
-    return `${String(asset.cantidad ?? 1)} × ${String(asset.descripcion ?? 'Activo')}${identifier}${observation}`;
+    const returned = asset.cantidadDevuelta === null || asset.cantidadDevuelta === undefined ? '' : ` · regresaron ${String(asset.cantidadDevuelta)} de ${String(asset.cantidad ?? 1)}`;
+    const returnObservation = asset.observacionDevolucion ? ` · retorno: ${String(asset.observacionDevolucion)}` : '';
+    return `${String(asset.cantidad ?? 1)} × ${String(asset.descripcion ?? 'Activo')}${identifier}${observation}${returned}${returnObservation}`;
   }).join('; ');
   return String(value);
 }
