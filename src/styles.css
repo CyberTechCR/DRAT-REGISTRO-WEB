@@ -123,6 +123,7 @@ h2 { margin-bottom: 10px; color: #163243; font-size: 19px; }
 .approval-button:disabled { cursor: not-allowed; opacity: .45; }
 .asset-missing-list { gap: 8px !important; }
 .approval-actions { display: grid !important; gap: 8px !important; }.last-review { margin-top: 8px; padding: 10px; border-left: 3px solid #d59a24; border-radius: 4px; background: #fff8e8; color: #674b17 !important; }
+.manual-review-filters { grid-template-columns: minmax(220px, 2fr) minmax(180px, 1fr); margin-top: 0; }
 
 @media (max-width: 1120px) {
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
