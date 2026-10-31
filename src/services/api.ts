@@ -99,7 +99,7 @@ export interface InstitutionalTripRecord {
 
 export interface MovementHistoryRecord {
   id: string;
-  type: 'FUNCIONARIO' | 'VEHICULO_PARTICULAR' | 'VEHICULO_INSTITUCIONAL' | 'VISITANTE';
+  type: 'FUNCIONARIO' | 'VEHICULO_PARTICULAR' | 'VEHICULO_INSTITUCIONAL' | 'VISITANTE' | 'PROVEEDOR';
   state: 'INGRESO' | 'SALIDA';
   subject: string;
   identifier: string;

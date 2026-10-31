@@ -3,7 +3,7 @@ import { useAuth } from '../auth/AuthContext';
 import { getMovementHistory, type MovementHistoryRecord } from '../services/api';
 
 const formatDate = (value: string) => new Intl.DateTimeFormat('es-CR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(value));
-const labels: Record<MovementHistoryRecord['type'], string> = { FUNCIONARIO: 'Funcionario', VEHICULO_PARTICULAR: 'Vehículo particular', VEHICULO_INSTITUCIONAL: 'Vehículo institucional', VISITANTE: 'Visitante' };
+const labels: Record<MovementHistoryRecord['type'], string> = { FUNCIONARIO: 'Funcionario', VEHICULO_PARTICULAR: 'Vehículo particular', VEHICULO_INSTITUCIONAL: 'Vehículo institucional', VISITANTE: 'Visitante', PROVEEDOR: 'Proveedor' };
 const detailLabel = (key: string) => key.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase());
 
 export function InstitutionalTripsPage() {
@@ -25,7 +25,7 @@ export function InstitutionalTripsPage() {
     <form className="panel history-filters" onSubmit={submit}>
       <label>Desde<input type="date" value={filters.from} onChange={(event) => setFilters({ ...filters, from: event.target.value })}/></label>
       <label>Hasta<input type="date" value={filters.to} onChange={(event) => setFilters({ ...filters, to: event.target.value })}/></label>
-      <label>Tipo<select value={filters.type} onChange={(event) => setFilters({ ...filters, type: event.target.value })}><option value="">Todos</option><option value="FUNCIONARIO">Funcionarios</option><option value="VEHICULO_PARTICULAR">Vehículos particulares</option><option value="VEHICULO_INSTITUCIONAL">Vehículos institucionales</option><option value="VISITANTE">Visitantes</option></select></label>
+      <label>Tipo<select value={filters.type} onChange={(event) => setFilters({ ...filters, type: event.target.value })}><option value="">Todos</option><option value="FUNCIONARIO">Funcionarios</option><option value="VEHICULO_PARTICULAR">Vehículos particulares</option><option value="VEHICULO_INSTITUCIONAL">Vehículos institucionales</option><option value="VISITANTE">Visitantes</option><option value="PROVEEDOR">Proveedores</option></select></label>
       <label>Estado<select value={filters.state} onChange={(event) => setFilters({ ...filters, state: event.target.value })}><option value="">Todos</option><option value="INGRESO">Ingreso</option><option value="SALIDA">Salida</option></select></label>
       <button className="primary-action" type="submit">Aplicar filtros</button><button className="secondary-action" type="button" onClick={clear}>Limpiar</button>
     </form>
