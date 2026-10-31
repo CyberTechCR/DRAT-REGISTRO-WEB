@@ -15,11 +15,11 @@ export function PermanentProvidersPage() {
 
   const load = useCallback(async () => {
     const [providerData, tagData] = await Promise.all([getPermanentProviders(token), getNfcTags(token)]);
-    setProviders(providerData); setTags(tagData.filter((tag) => !tag.employeeId && tag.condition === 'OPERATIVO'));
+    setProviders(providerData); setTags(tagData.filter((tag) => tag.purpose === 'GENERAL' && !tag.employeeId && tag.condition === 'OPERATIVO'));
   }, [token]);
   useEffect(() => {
     Promise.all([getPermanentProviders(token), getNfcTags(token)])
-      .then(([providerData, tagData]) => { setProviders(providerData); setTags(tagData.filter((tag) => !tag.employeeId && tag.condition === 'OPERATIVO')); })
+      .then(([providerData, tagData]) => { setProviders(providerData); setTags(tagData.filter((tag) => tag.purpose === 'GENERAL' && !tag.employeeId && tag.condition === 'OPERATIVO')); })
       .catch((reason: unknown) => setError(reason instanceof Error ? reason.message : 'No fue posible cargar el catálogo'));
   }, [token]);
 

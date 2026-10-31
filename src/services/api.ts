@@ -80,6 +80,7 @@ export interface NfcTagRecord {
   employeeId: string | null;
   active: boolean;
   condition: 'OPERATIVO' | 'DANADO' | 'PERDIDO' | 'INACTIVO';
+  purpose: 'GENERAL' | 'VISITANTE';
   operationalStatus: 'DISPONIBLE' | 'ASIGNADO' | 'DANADO' | 'PERDIDO' | 'INACTIVO';
   visitorAssignment: { name: string } | null;
   providerAssignment: { name: string } | null;
@@ -265,7 +266,7 @@ export async function getNfcTags(token: string) {
   return response.data;
 }
 
-export async function createNfcTag(token: string, input: { code: string; employeeId?: string | null }) {
+export async function createNfcTag(token: string, input: { code: string; employeeId?: string | null; purpose?: 'GENERAL' | 'VISITANTE' }) {
   const response = await apiRequest<{ data: NfcTagRecord }>('/api/v1/catalogs/nfc-tags', { method: 'POST', body: JSON.stringify(input) }, token);
   return response.data;
 }
