@@ -303,7 +303,7 @@ export async function getMovementHistory(token: string, filters: { from?: string
   return response.data;
 }
 
-export async function createMovementContingency(token: string, input: { entityType: 'FUNCIONARIO' | 'VEHICULO_PARTICULAR'; entityId: string; movementType: 'INGRESO' | 'SALIDA'; reason: string }) {
+export async function createMovementContingency(token: string, input: { entityType: 'FUNCIONARIO' | 'VEHICULO_PARTICULAR'; entityId: string; movementType: 'INGRESO' | 'SALIDA'; reason: string; authorizedByReference?: string; observations?: string }) {
   const response = await apiRequest<{ data: { createdMovementId: string } }>('/api/v1/movements/contingencies', { method: 'POST', body: JSON.stringify(input) }, token);
   return response.data;
 }
