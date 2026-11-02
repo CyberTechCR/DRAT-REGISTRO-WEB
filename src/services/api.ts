@@ -110,6 +110,19 @@ export interface MovementHistoryRecord {
   details: Record<string, unknown>;
 }
 
+export interface VehiclePlateReportRecord {
+  id: string;
+  vehicleType: 'PARTICULAR' | 'INSTITUCIONAL' | 'VISITANTE' | 'PROVEEDOR';
+  plate: string;
+  movementType: 'INGRESO' | 'SALIDA';
+  occurredAt: string;
+  source: string;
+  subject: string;
+  operatorName: string;
+  operatorEmail: string;
+  details: Record<string, unknown>;
+}
+
 async function apiRequest<T>(path: string, init: RequestInit = {}, token?: string): Promise<T> {
   const headers = new Headers(init.headers);
   if (init.body) headers.set('Content-Type', 'application/json');
@@ -300,6 +313,12 @@ export async function getMovementHistory(token: string, filters: { from?: string
   Object.entries(filters).forEach(([key, value]) => { if (value) query.set(key, value); });
   const suffix = query.size ? `?${query.toString()}` : '';
   const response = await apiRequest<{ data: MovementHistoryRecord[] }>(`/api/v1/movements/history${suffix}`, {}, token);
+  return response.data;
+}
+
+export async function getVehiclePlateReport(token: string, filters: { plate: string; from: string; to: string }) {
+  const query = new URLSearchParams(filters);
+  const response = await apiRequest<{ data: VehiclePlateReportRecord[] }>(`/api/v1/movements/reports/vehicles?${query.toString()}`, {}, token);
   return response.data;
 }
 

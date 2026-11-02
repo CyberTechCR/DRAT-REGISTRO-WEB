@@ -17,6 +17,7 @@ import { InstitutionalTripsPage } from './pages/InstitutionalTripsPage';
 import { ApprovalsPage } from './pages/ApprovalsPage';
 import { VisitorBadgesPage } from './pages/VisitorBadgesPage';
 import { PermanentProvidersPage } from './pages/PermanentProvidersPage';
+import { ReportsPage } from './pages/ReportsPage';
 
 const pageContent = {
   '/administracion': ['CATÁLOGOS DEL SISTEMA', 'Administración', 'Gestión de usuarios, funcionarios, vehículos y configuraciones generales.'],
@@ -41,7 +42,8 @@ export function App() {
         <Route path="/administracion/proveedores" element={<ProtectedRoute allowedRoles={['ADMINISTRADOR']}><PermanentProvidersPage /></ProtectedRoute>} />
         <Route path="/consultas" element={<ProtectedRoute allowedRoles={['ADMINISTRADOR']}><InstitutionalTripsPage /></ProtectedRoute>} />
         <Route path="/aprobaciones" element={<ProtectedRoute allowedRoles={['ADMINISTRADOR']}><ApprovalsPage /></ProtectedRoute>} />
-        {modules.slice(2).filter((module) => !['/consultas', '/aprobaciones'].includes(module.path)).map((module) => {
+        <Route path="/reportes" element={<ProtectedRoute allowedRoles={['ADMINISTRADOR']}><ReportsPage /></ProtectedRoute>} />
+        {modules.slice(2).filter((module) => !['/consultas', '/aprobaciones', '/reportes'].includes(module.path)).map((module) => {
           const [eyebrow, title, description] = pageContent[module.path as keyof typeof pageContent];
           return <Route key={module.path} path={module.path} element={<ProtectedRoute allowedRoles={['ADMINISTRADOR']}><ModulePage eyebrow={eyebrow} title={title} description={description} /></ProtectedRoute>} />;
         })}
