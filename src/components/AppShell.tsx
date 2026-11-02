@@ -3,6 +3,7 @@ import { Navigate, NavLink, Outlet, useNavigate } from 'react-router';
 import { useAuth } from '../auth/AuthContext';
 import { canAccess } from '../auth/authorization';
 import { modules } from '../config/modules';
+import { AppIcon } from './AppIcon';
 
 export function AppShell() {
   const { session, logout } = useAuth();
@@ -24,12 +25,12 @@ export function AppShell() {
         <nav className="main-nav" aria-label="Navegación principal">
           {modules.filter((module) => canAccess(session.user.role, module.allowedRoles)).map((module) => (
             <NavLink key={module.path} to={module.path} end={module.path === '/'}>
-              <span className="nav-icon" aria-hidden="true">{module.shortLabel}</span>{module.label}
+              <span className="nav-icon"><AppIcon name={module.icon} /></span><span className="nav-label">{module.label}</span>
             </NavLink>
           ))}
         </nav>
         <div className="sidebar-user">
-          <span className="avatar">AD</span>
+          <span className="session-user-icon"><AppIcon name="user" /></span>
           <span className="sidebar-user-details"><strong>{session.user.name}</strong><small>{session.user.role}</small></span>
           <button className="logout-button" type="button" onClick={handleLogout}>Salir</button>
         </div>
