@@ -20,8 +20,8 @@ a { color: inherit; }
 .brand small, .sidebar-user small { margin-top: 3px; color: #b8cbd3; font-size: 11px; }
 .brand-mark { width: 42px; height: 42px; display: inline-grid; flex: 0 0 auto; place-items: center; border-radius: 12px; color: white; background: #009456; font-size: 25px; font-weight: 900; font-style: italic; }
 .brand-mark.large { width: 64px; height: 64px; margin-bottom: 12px; border-radius: 18px; font-size: 36px; }
-.brand-logo { width: 54px; height: 54px; display: grid; flex: 0 0 auto; place-items: center; overflow: hidden; border-radius: 12px; background: #f4f7f8; }
-.brand-logo img { width: 100%; height: 100%; object-fit: contain; }
+.brand-logo { width: 78px; height: 64px; display: grid; flex: 0 0 auto; place-items: center; overflow: hidden; border-radius: 12px; background: #f4f7f8; }
+.brand-logo img { width: 100%; height: 100%; object-fit: contain; transform: scale(1.14); }
 .main-nav { display: grid; flex: 1 1 auto; align-content: start; gap: 7px; min-height: 0; margin-top: clamp(14px, 3vh, 28px); overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.25) transparent; }
 .main-nav a { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 11px; color: #d8e5e9; text-decoration: none; font-size: 14px; font-weight: 650; }
 .main-nav a:hover { background: rgba(255,255,255,.07); }
@@ -150,6 +150,7 @@ h2 { margin-bottom: 10px; color: #163243; font-size: 19px; }
   .app-shell { grid-template-columns: 86px 1fr; }
   .sidebar { width: 86px; padding-inline: 12px; }
   .brand { justify-content: center; padding-inline: 0; }
+  .brand-logo { width: 58px; height: 58px; }
   .brand > span:last-child, .sidebar-user-details, .nav-label { display: none; }
   .main-nav a { justify-content: center; padding-inline: 0; font-size: 0; }
   .sidebar-user { display: flex; justify-content: center; padding-inline: 0; }
@@ -164,7 +165,7 @@ h2 { margin-bottom: 10px; color: #163243; font-size: 19px; }
   .sidebar { position: sticky; z-index: 20; inset: auto; top: 0; width: 100%; height: auto; padding: 10px 14px; box-shadow: 0 5px 18px rgba(7,61,87,.2); }
   .main-content { width: 100%; }
   .brand { justify-content: flex-start; padding: 0 0 9px; }
-  .brand-logo { width: 45px; height: 45px; }
+  .brand-logo { width: 68px; height: 54px; }
   .brand > span:last-child { display: flex; }
   .brand strong { font-size: 16px; }.brand small { font-size: 10px; }
   .main-nav { display: flex; max-width: 100%; gap: 6px; margin-top: 9px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; overscroll-behavior-inline: contain; }
