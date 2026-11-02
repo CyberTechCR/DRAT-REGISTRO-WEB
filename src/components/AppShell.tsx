@@ -36,7 +36,7 @@ export function AppShell() {
       </aside>
       <main className="main-content">
         <header className="topbar shadow-sm">
-          <div><span className="environment-dot" /> Entorno de demostración</div>
+          <div><span className="environment-dot" /> Entorno operativo</div>
           <div className="institution">DRAT · Control institucional</div>
         </header>
         <Outlet />

@@ -16,7 +16,7 @@ export function ApiStatus() {
   const label = connected === null
     ? 'Comprobando API…'
     : connected
-      ? 'API conectada · datos ficticios'
+      ? 'API conectada · datos reales'
       : 'API sin conexión';
 
   return <div className={`sync-status ${connected === false ? 'offline' : ''}`}><span /> {label}</div>;

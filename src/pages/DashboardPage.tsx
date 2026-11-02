@@ -1,35 +1,15 @@
+import { useEffect, useState } from 'react';
+
+import { useAuth } from '../auth/AuthContext';
 import { ApiStatus } from '../components/ApiStatus';
+import { getDashboardSummary, type DashboardSummary, type MovementHistoryRecord } from '../services/api';
 
-const stats = [
-  { value: '38', label: 'Personas presentes', tone: 'blue' },
-  { value: '12', label: 'Vehículos dentro', tone: 'green' },
-  { value: '3', label: 'Visitas activas', tone: 'amber' },
-  { value: '0', label: 'Alertas críticas', tone: 'neutral' },
-];
+const typeLabels:Record<MovementHistoryRecord['type'],string>={FUNCIONARIO:'Funcionario',VEHICULO_PARTICULAR:'Vehículo particular',VEHICULO_INSTITUCIONAL:'Vehículo institucional',VISITANTE:'Visitante',PROVEEDOR:'Proveedor'};
+function greeting(){const hour=new Date().getHours();return hour<12?'Buenos días':hour<18?'Buenas tardes':'Buenas noches';}
 
-export function DashboardPage() {
-  return (
-    <section className="page">
-      <div className="page-heading">
-        <div><p className="eyebrow">RESUMEN GENERAL</p><h1>Buenos días, Administrador</h1><p>Estado actual de la garita principal del DRAT.</p></div>
-        <ApiStatus />
-      </div>
-      <div className="stats-grid">
-        {stats.map((stat) => <article className={`stat-card ${stat.tone} transition-shadow hover:shadow-lg`} key={stat.label}><strong>{stat.value}</strong><span>{stat.label}</span></article>)}
-      </div>
-      <div className="dashboard-grid">
-        <article className="panel transition-shadow hover:shadow-lg">
-          <div className="panel-heading"><div><p className="eyebrow">ACTIVIDAD RECIENTE</p><h2>Últimos movimientos</h2></div><span className="demo-badge">Demostración</span></div>
-          <div className="activity-row"><span className="activity-icon">IN</span><div><strong>Ingreso de funcionario</strong><small>María Rodríguez · Vehículo ABC-123</small></div><time>08:42</time></div>
-          <div className="activity-row"><span className="activity-icon out">SA</span><div><strong>Salida institucional</strong><small>Unidad 02 · Destino San José</small></div><time>08:31</time></div>
-          <div className="activity-row"><span className="activity-icon visit">VI</span><div><strong>Visitante registrado</strong><small>Carlos Méndez · Gafete 014</small></div><time>08:20</time></div>
-        </article>
-        <article className="panel quick-panel transition-shadow hover:shadow-lg">
-          <p className="eyebrow">ACCESOS RÁPIDOS</p><h2>Gestión administrativa</h2>
-          <p>Utilice el menú lateral para ingresar a los módulos disponibles según su rol.</p>
-          <div className="role-note"><strong>Estructura protegida</strong><span>Rol activo: ADMINISTRADOR</span></div>
-        </article>
-      </div>
-    </section>
-  );
+export function DashboardPage(){const {session}=useAuth();const [summary,setSummary]=useState<DashboardSummary|null>(null);const [error,setError]=useState('');const [loading,setLoading]=useState(true);
+  async function load(){setLoading(true);setError('');try{setSummary(await getDashboardSummary(session?.token??''));}catch(cause){setError(cause instanceof Error?cause.message:'No fue posible cargar el resumen');}finally{setLoading(false);}}
+  useEffect(()=>{getDashboardSummary(session?.token??'').then(setSummary).catch((cause:unknown)=>setError(cause instanceof Error?cause.message:'No fue posible cargar el resumen')).finally(()=>setLoading(false));},[session?.token]);
+  const stats=[{value:summary?.peoplePresent,label:'Personas presentes',tone:'blue'},{value:summary?.vehiclesInside,label:'Vehículos dentro',tone:'green'},{value:summary?.activeVisits,label:'Visitas activas',tone:'amber'},{value:summary?.pendingAlerts,label:'Alertas pendientes',tone:'neutral'}];
+  return <section className="page"><div className="page-heading"><div><p className="eyebrow">RESUMEN GENERAL</p><h1>{greeting()}, {session?.user.name}</h1><p>Estado actual de la garita principal del DRAT.</p></div><ApiStatus/></div>{error&&<p className="form-error" role="alert">{error} <button type="button" onClick={()=>void load()}>Reintentar</button></p>}<div className="stats-grid">{stats.map((stat)=><article className={`stat-card ${stat.tone} transition-shadow hover:shadow-lg`} key={stat.label}><strong>{loading?'—':stat.value??0}</strong><span>{stat.label}</span></article>)}</div><div className="dashboard-grid"><article className="panel transition-shadow hover:shadow-lg"><div className="panel-heading"><div><p className="eyebrow">ACTIVIDAD RECIENTE</p><h2>Últimos movimientos</h2></div><span className="demo-badge">EN VIVO</span></div>{loading?<p className="empty-list">Cargando movimientos…</p>:summary?.recentMovements.length===0?<p className="empty-list">Todavía no hay movimientos registrados.</p>:summary?.recentMovements.map((movement)=><div className="activity-row" key={`${movement.type}-${movement.id}`}><span className={`activity-icon ${movement.state==='SALIDA'?'out':movement.type==='VISITANTE'?'visit':''}`}>{movement.state==='INGRESO'?'IN':'SA'}</span><div><strong>{movement.state==='INGRESO'?'Ingreso':'Salida'} · {typeLabels[movement.type]}</strong><small>{movement.subject} · {movement.identifier} · {movement.operatorName}</small></div><time dateTime={movement.occurredAt}>{new Date(movement.occurredAt).toLocaleTimeString('es-CR',{hour:'2-digit',minute:'2-digit'})}</time></div>)}</article><article className="panel quick-panel transition-shadow hover:shadow-lg"><p className="eyebrow">ESTADO DEL SISTEMA</p><h2>Información actualizada</h2><p>Los indicadores y movimientos provienen directamente de PostgreSQL.</p><div className="role-note"><strong>Última actualización</strong><span>{summary?new Date(summary.generatedAt).toLocaleString('es-CR'):'Consultando…'}</span></div><button className="secondary-action dashboard-refresh" type="button" disabled={loading} onClick={()=>void load()}>{loading?'Actualizando…':'Actualizar datos'}</button></article></div></section>;
 }

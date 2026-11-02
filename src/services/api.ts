@@ -123,6 +123,11 @@ export interface VehiclePlateReportRecord {
   details: Record<string, unknown>;
 }
 
+export interface DashboardSummary {
+  peoplePresent: number; vehiclesInside: number; activeVisits: number; pendingAlerts: number;
+  recentMovements: MovementHistoryRecord[]; generatedAt: string;
+}
+
 async function apiRequest<T>(path: string, init: RequestInit = {}, token?: string): Promise<T> {
   const headers = new Headers(init.headers);
   if (init.body) headers.set('Content-Type', 'application/json');
@@ -320,6 +325,10 @@ export async function getVehiclePlateReport(token: string, filters: { plate: str
   const query = new URLSearchParams(filters);
   const response = await apiRequest<{ data: VehiclePlateReportRecord[] }>(`/api/v1/movements/reports/vehicles?${query.toString()}`, {}, token);
   return response.data;
+}
+
+export async function getDashboardSummary(token: string) {
+  return (await apiRequest<{ data: DashboardSummary }>('/api/v1/movements/dashboard', {}, token)).data;
 }
 
 export async function createMovementContingency(token: string, input: { entityType: 'FUNCIONARIO' | 'VEHICULO_PARTICULAR'; entityId: string; movementType: 'INGRESO' | 'SALIDA'; reason: string; authorizedByReference?: string; observations?: string }) {
